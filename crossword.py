@@ -3,8 +3,7 @@ import random
 import pygame
 import numpy as np
 from numba import njit
-
-from parser import paste_puzzle
+from web_parser import paste_puzzle
 
 
 class Crossword:

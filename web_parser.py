@@ -3,13 +3,16 @@ import time
 
 import dotenv
 from bs4 import BeautifulSoup
-from requests_html import HTMLSession
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 dotenv.load_dotenv()
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 
 def login(driver):
@@ -35,7 +38,7 @@ def get_numbers():
     driver = webdriver.Chrome()
     login(driver)
 
-    for tp, val in [('color', 1), ('size', 6), ('filtr', 0)]:
+    for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
         sel = driver.find_element(By.ID, tp)
         sel.click()
         time.sleep(1)
@@ -70,12 +73,13 @@ def get_puzzle(k):
         with open(f'static/japonskie/puzzle_{k}.html', 'r') as f:
             response = f.read()
     else:
-        session = HTMLSession()
-        response = session.get(f'https://japonskie.ru/{k}')
-        response.html.render(timeout=20000)
-        response = response.html.html
-        with open(f'static/japonskie/puzzle_{k}.html', 'w') as f:
-            f.write(response)
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get(f'https://japonskie.ru/{k}')
+        response = driver.page_source
+        if os.path.exists(f'static/japonskie/'):
+            with open(f'static/japonskie/puzzle_{k}.html', 'w') as f:
+                f.write(response)
+        driver.quit()
 
     soup = BeautifulSoup(response, 'lxml')
     puzzle = soup.find('table', id='full_cross_tbl')

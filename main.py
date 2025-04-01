@@ -1,11 +1,11 @@
-import os
-import signal
+
+import subprocess
 import sys
 import threading
 import time
 import pygame
 from crossword import Crossword
-from parser import get_puzzle, get_numbers
+from web_parser import get_puzzle, get_numbers
 import psutil
 
 
@@ -18,10 +18,11 @@ def recover():
             for proc in psutil.process_iter(['pid', 'name']):
                 try:
                     if proc.info['name'] and 'chrome' in proc.info['name'].lower():
-                        os.kill(proc.info['pid'], signal.SIGTERM)
+                        proc.terminate()
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass
-            os.execv(sys.executable, ['python'] + sys.argv)
+            subprocess.Popen([sys.executable] + sys.argv)
+            sys.exit()
 
 
 AUTO_RESOLUTION = True
