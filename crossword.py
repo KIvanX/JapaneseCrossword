@@ -7,7 +7,8 @@ from web_parser import paste_puzzle
 
 
 class Crossword:
-    def __init__(self, screen: pygame.display, cols, rows, cols_colors, rows_colors, colors, pix, deep, num, auto=False):
+    def __init__(self, screen: pygame.display, cols, rows, cols_colors, rows_colors, colors, pix, deep, num,
+                 auto=False, driver=None):
         self.screen = screen
         self.a = np.array([[0] * len(cols) for _ in range(len(rows))], dtype=np.byte)
         self.a_exclude = np.array([[[1] * len(colors) for __ in range(len(cols))] for _ in range(len(rows))], dtype=np.byte)
@@ -25,6 +26,7 @@ class Crossword:
         self.drawing, self.pen, self.clear = False, 1, False
         self.n, self.m = len(self.a), len(self.a[0])
         self.auto = auto
+        self.driver = driver
 
         for i in range(self.n):
             for j in range(self.m):
@@ -146,7 +148,7 @@ class Crossword:
             self.draw()
             self.finished = True
             if self.auto:
-                paste_puzzle(self.num, self.a)
+                paste_puzzle(self.driver, self.num, self.a)
         elif not updated:
             if not self.dump:
                 self.dump = [e.copy() for e in self.a]

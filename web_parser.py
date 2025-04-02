@@ -34,27 +34,30 @@ def login(driver):
         time.sleep(1)
 
 
-def get_numbers():
-    driver = webdriver.Chrome()
-    login(driver)
+def get_numbers(driver):
+    try:
+        # login(driver)
+        driver.get(f'https://japonskie.ru/')
 
-    for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
-        sel = driver.find_element(By.ID, tp)
-        sel.click()
+        for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
+            sel = driver.find_element(By.ID, tp)
+            sel.click()
+            time.sleep(1)
+            sel.find_elements(By.TAG_NAME, 'option')[val].click()
+            time.sleep(1)
+
+        driver.find_element(By.ID, 'findbutdiv').click()
         time.sleep(1)
-        sel.find_elements(By.TAG_NAME, 'option')[val].click()
-        time.sleep(1)
+        table = driver.find_element(by=By.ID, value='catitems')
 
-    driver.find_element(By.ID, 'findbutdiv').click()
-    time.sleep(1)
-    table = driver.find_element(by=By.ID, value='catitems')
+        numbers = []
+        for a in table.find_elements(By.CLASS_NAME, value='catitem'):
+            if a.text.split('#')[-1].strip().isdigit():
+                numbers.append(int(a.text.strip().split('#')[-1]))
 
-    numbers = []
-    for a in table.find_elements(By.CLASS_NAME, value='catitem'):
-        if a.text.split('#')[-1].strip().isdigit():
-            numbers.append(int(a.text.strip().split('#')[-1]))
-
-    return numbers
+        return numbers
+    except:
+        print('Get numbers error')
 
 
 def _parse_color(element):
@@ -68,72 +71,78 @@ def _parse_color(element):
     return res
 
 
-def get_puzzle(k):
-    if os.path.exists(f'static/japonskie/puzzle_{k}.html'):
-        with open(f'static/japonskie/puzzle_{k}.html', 'r') as f:
-            response = f.read()
-    else:
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.get(f'https://japonskie.ru/{k}')
-        response = driver.page_source
-        if os.path.exists(f'static/japonskie/'):
-            with open(f'static/japonskie/puzzle_{k}.html', 'w') as f:
-                f.write(response)
-        driver.quit()
-
-    soup = BeautifulSoup(response, 'lxml')
-    puzzle = soup.find('table', id='full_cross_tbl')
-    button_colors = soup.find('div', id='maincolors').find_all('button', class_='color_button')[:-1]
-
-    bc = 'background-color'
-    colors_conv = {_parse_color(e): i + 1 for i, e in enumerate(button_colors)}
-    colors = {i: v for v, i in colors_conv.items()}
-    colors[0] = (60, 60, 60)
-
-    cols_divs = puzzle.find('table', id='cross_top').find_all('td')
-    deep = len(puzzle.find('table', id='cross_top').find_all('tr'))
-    n = len(cols_divs) // deep
-    cols, cols_colors = [[] for _ in range(n)], [[] for _ in range(n)]
-    for i, e in enumerate(cols_divs):
-        if e.text.isdigit():
-            cols[i % n].append(int(e.text))
-            if e.get('style') and bc in e.get('style'):
-                cols_colors[i % n].append(colors_conv[_parse_color(e)])
-            else:
-                cols_colors[i % n].append(1)
-
-    rows_divs = puzzle.find('table', id='cross_left').find_all('td')
-    m = len(puzzle.find('table', id='cross_left').find_all('tr'))
-    deep = len(rows_divs) // m
-    rows, rows_colors = [[] for _ in range(m)], [[] for _ in range(m)]
-    for i, e in enumerate(rows_divs):
-        if e.text.isdigit():
-            rows[i // deep].append(int(e.text))
-            if e.get('style') and bc in e.get('style'):
-                rows_colors[i // deep].append(colors_conv[_parse_color(e)])
-            else:
-                rows_colors[i // deep].append(1)
-
-    deep = (len(max(rows, key=len)), len(max(cols, key=len)))
-    return rows, cols, rows_colors, cols_colors, colors, deep
-
-
-def paste_puzzle(k, a):
+def get_puzzle(driver, k):
     try:
-        options = Options()
-        options.add_argument("--start-maximized")
-        driver = webdriver.Chrome(options)
+        if os.path.exists(f'static/japonskie/puzzle_{k}.html'):
+            with open(f'static/japonskie/puzzle_{k}.html', 'r') as f:
+                response = f.read()
+        else:
+            # driver = webdriver.Chrome(options=chrome_options)
+            driver.get(f'https://japonskie.ru/{k}')
+            response = driver.page_source
+            if os.path.exists(f'static/japonskie/'):
+                with open(f'static/japonskie/puzzle_{k}.html', 'w') as f:
+                    f.write(response)
+            # driver.quit()
+
+        soup = BeautifulSoup(response, 'lxml')
+        puzzle = soup.find('table', id='full_cross_tbl')
+        button_colors = soup.find('div', id='maincolors').find_all('button', class_='color_button')[:-1]
+
+        bc = 'background-color'
+        colors_conv = {_parse_color(e): i + 1 for i, e in enumerate(button_colors)}
+        colors = {i: v for v, i in colors_conv.items()}
+        colors[0] = (60, 60, 60)
+
+        cols_divs = puzzle.find('table', id='cross_top').find_all('td')
+        deep = len(puzzle.find('table', id='cross_top').find_all('tr'))
+        n = len(cols_divs) // deep
+        cols, cols_colors = [[] for _ in range(n)], [[] for _ in range(n)]
+        for i, e in enumerate(cols_divs):
+            if e.text.isdigit():
+                cols[i % n].append(int(e.text))
+                if e.get('style') and bc in e.get('style'):
+                    cols_colors[i % n].append(colors_conv[_parse_color(e)])
+                else:
+                    cols_colors[i % n].append(1)
+
+        rows_divs = puzzle.find('table', id='cross_left').find_all('td')
+        m = len(puzzle.find('table', id='cross_left').find_all('tr'))
+        deep = len(rows_divs) // m
+        rows, rows_colors = [[] for _ in range(m)], [[] for _ in range(m)]
+        for i, e in enumerate(rows_divs):
+            if e.text.isdigit():
+                rows[i // deep].append(int(e.text))
+                if e.get('style') and bc in e.get('style'):
+                    rows_colors[i // deep].append(colors_conv[_parse_color(e)])
+                else:
+                    rows_colors[i // deep].append(1)
+
+        deep = (len(max(rows, key=len)), len(max(cols, key=len)))
+        return rows, cols, rows_colors, cols_colors, colors, deep
+    except:
+        print('Get puzzle error')
+
+
+def paste_puzzle(driver, k, a):
+    try:
+        # options = Options()
+        # options.add_argument("--start-maximized")
+        # driver = webdriver.Chrome(options)
         driver.switch_to.window(driver.current_window_handle)
 
-        login(driver)
+        # login(driver)
         driver.get(f'https://japonskie.ru/{k}')
 
-        action = ActionChains(driver, duration=3)
+        action = ActionChains(driver, duration=1)
         table = driver.find_element(By.ID, 'cross_main')
         button_colors = driver.find_element(By.ID, value='maincolors').find_elements(By.CLASS_NAME, 'color_button')
         for i_b in range(len(button_colors) - 1):
             button_colors[i_b].click()
             for i, row in enumerate(table.find_elements(By.TAG_NAME, 'tr')):
+                if not [e for i1 in range(i, len(a)) for e in a[i1] if e == i_b + 1]:
+                    break
+
                 if len(a) < 30 or len(a) >= 30 and i > 8:
                     driver.execute_script("window.scrollBy(0, 15)")
 
@@ -151,6 +160,6 @@ def paste_puzzle(k, a):
                 action.perform()
 
         time.sleep(5)
-        driver.close()
+        # driver.close()
     except:
         print(f'Paste error: {k}')

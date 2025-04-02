@@ -4,8 +4,11 @@ import sys
 import threading
 import time
 import pygame
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 from crossword import Crossword
-from web_parser import get_puzzle, get_numbers
+from web_parser import get_puzzle, get_numbers, login
 import psutil
 
 
@@ -13,7 +16,7 @@ def recover():
     global work
     while True:
         work = False
-        time.sleep(120)
+        time.sleep(60)
         if not work:
             for proc in psutil.process_iter(['pid', 'name']):
                 try:
@@ -27,13 +30,20 @@ def recover():
 
 AUTO_RESOLUTION = True
 num_i, nums, work = 0, [], True
-crossword = None
+crossword, driver = None, None
+
+if AUTO_RESOLUTION:
+    options = Options()
+    options.add_argument("--start-maximized")
+    driver = webdriver.Chrome(options)
+    login(driver)
+
 
 pygame.init()
 pygame.display.set_caption('Японский кроссворд')
 
 if AUTO_RESOLUTION:
-    threading.Thread(target=recover, daemon=True).start()
+    threading.Thread(target=recover).start()
 
 W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
 running = True
@@ -43,10 +53,10 @@ while running:
 
     if not crossword or AUTO_RESOLUTION and crossword.finished:
         if num_i >= len(nums):
-            nums += get_numbers()
+            nums += get_numbers(driver)
         while True:
             try:
-                rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(nums[num_i])
+                rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
                 num_i += 1
                 break
             except:
@@ -57,7 +67,8 @@ while running:
         a = int(H * 0.8 // (deep[1] + len(rows_colors)))
         w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
         screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
-        crossword = Crossword(screen, cols, rows, cols_colors, rows_colors, colors, a, deep, nums[num_i - 1], auto=AUTO_RESOLUTION)
+        crossword = Crossword(screen, cols, rows, cols_colors, rows_colors, colors, a, deep, nums[num_i - 1],
+                              auto=AUTO_RESOLUTION, driver=driver)
 
     crossword.draw()
     crossword.update(events)
