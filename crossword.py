@@ -145,7 +145,7 @@ class Crossword:
                 # self.a_exclude[self.dump_v[0]][self.dump_v[1]][self.dump_v[2]] = 0
                 return 0
 
-            self.draw()
+            # self.draw()
             self.finished = True
             if self.auto:
                 paste_puzzle(self.driver, self.num, self.a)

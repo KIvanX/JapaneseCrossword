@@ -31,7 +31,7 @@ crossword, driver = None, None
 options = Options()
 if AUTO_RESOLUTION:
     options.add_argument("--start-maximized")
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
@@ -49,13 +49,13 @@ driver = webdriver.Chrome(options)
 login(driver)
 
 
-pygame.init()
-pygame.display.set_caption('Японский кроссворд')
+# pygame.init()
+# pygame.display.set_caption('Японский кроссворд')
 
-W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
+# W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
 running = True
 while running:
-    events = pygame.event.get()
+    # events = pygame.event.get()
     work = True
 
     if not crossword or AUTO_RESOLUTION and crossword.finished:
@@ -73,27 +73,27 @@ while running:
                 if num_i >= len(nums):
                     nums += get_numbers(driver)
 
-        a = int(H * 0.8 // (deep[1] + len(rows_colors)))
-        w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
-        screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
-        crossword = Crossword(screen, cols, rows, cols_colors, rows_colors, colors, a, deep, nums[num_i - 1],
+        # a = int(H * 0.8 // (deep[1] + len(rows_colors)))
+        # w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
+        # screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
+        crossword = Crossword(None, cols, rows, cols_colors, rows_colors, colors, None, deep, nums[num_i - 1],
                               auto=AUTO_RESOLUTION, driver=driver)
 
-    crossword.draw()
-    crossword.update(events)
+    # crossword.draw()
+    # crossword.update(events)
 
     if AUTO_RESOLUTION:
         crossword.find_answer()
 
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.VIDEORESIZE and crossword:
-            W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
-            h, w = crossword.deep[1] + len(crossword.rows_color), crossword.deep[0] + len(crossword.cols_color)
-            crossword.pix = min(H // h, W // w)
-
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not AUTO_RESOLUTION:
-            crossword.finished = False
-            crossword.find_answer()
+    # for event in events:
+    #     if event.type == pygame.QUIT:
+    #         running = False
+    #
+    #     if event.type == pygame.VIDEORESIZE and crossword:
+    #         W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
+    #         h, w = crossword.deep[1] + len(crossword.rows_color), crossword.deep[0] + len(crossword.cols_color)
+    #         crossword.pix = min(H // h, W // w)
+    #
+    #     if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not AUTO_RESOLUTION:
+    #         crossword.finished = False
+    #         crossword.find_answer()
