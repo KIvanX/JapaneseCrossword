@@ -1,4 +1,6 @@
+import logging
 import os.path
+import random
 import time
 
 import dotenv
@@ -9,10 +11,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 dotenv.load_dotenv()
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
 
 
 def login(driver):
@@ -55,7 +53,7 @@ def get_numbers(driver):
             if a.text.split('#')[-1].strip().isdigit():
                 numbers.append(int(a.text.strip().split('#')[-1]))
 
-        return numbers
+        return [random.choice(numbers)]
     except:
         print('Get numbers error')
 
@@ -126,11 +124,6 @@ def get_puzzle(driver, k):
 
 def paste_puzzle(driver, k, a):
     try:
-        # options = Options()
-        # options.add_argument("--start-maximized")
-        # driver = webdriver.Chrome(options)
-        driver.switch_to.window(driver.current_window_handle)
-
         # login(driver)
         driver.get(f'https://japonskie.ru/{k}')
 
@@ -160,6 +153,7 @@ def paste_puzzle(driver, k, a):
                 action.perform()
 
         time.sleep(5)
+        logging.warning('DONE')
         # driver.close()
     except:
         print(f'Paste error: {k}')

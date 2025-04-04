@@ -1,4 +1,7 @@
-
+import logging
+import os
+import random
+import signal
 import subprocess
 import sys
 import threading
@@ -9,41 +12,45 @@ from selenium.webdriver.chrome.options import Options
 
 from crossword import Crossword
 from web_parser import get_puzzle, get_numbers, login
-import psutil
 
 
-def recover():
-    global work
-    while True:
-        work = False
-        time.sleep(60)
-        if not work:
-            for proc in psutil.process_iter(['pid', 'name']):
-                try:
-                    if proc.info['name'] and 'chrome' in proc.info['name'].lower():
-                        proc.terminate()
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            subprocess.Popen([sys.executable] + sys.argv)
-            sys.exit()
+def handle_exit_signal(_, __):
+    if driver:
+        driver.quit()
+    exit(0)
 
 
-AUTO_RESOLUTION = True
+signal.signal(signal.SIGINT, handle_exit_signal)
+signal.signal(signal.SIGTERM, handle_exit_signal)
+
+
+AUTO_RESOLUTION = False
 num_i, nums, work = 0, [], True
 crossword, driver = None, None
 
+options = Options()
 if AUTO_RESOLUTION:
-    options = Options()
     options.add_argument("--start-maximized")
-    driver = webdriver.Chrome(options)
-    login(driver)
+    # options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    number = os.getpid()
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    with open('logs.log', "a") as f:
+        f.write('@' * 50 + f' The process {number} is running... ' + '@' * 50 + '\n\n')
+
+    logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="w",
+                        format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
+
+driver = webdriver.Chrome(options)
+login(driver)
 
 
 pygame.init()
 pygame.display.set_caption('Японский кроссворд')
-
-if AUTO_RESOLUTION:
-    threading.Thread(target=recover).start()
 
 W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
 running = True
@@ -63,6 +70,8 @@ while running:
                 print(f'Load error: {nums[num_i]}')
                 time.sleep(3)
                 num_i += 1
+                if num_i >= len(nums):
+                    nums += get_numbers(driver)
 
         a = int(H * 0.8 // (deep[1] + len(rows_colors)))
         w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
