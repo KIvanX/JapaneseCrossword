@@ -53,7 +53,7 @@ driver = webdriver.Chrome(options)
 login(driver)
 
 W, H = 0, 0
-if not DISPLAY:
+if DISPLAY:
     pygame.init()
     pygame.display.set_caption('Японский кроссворд')
     W, H = pygame.display.Info().current_w, pygame.display.Info().current_h
@@ -76,7 +76,7 @@ while running:
                     nums += get_numbers(driver)
 
         screen, a = None, None
-        if not DISPLAY:
+        if DISPLAY:
             a = int(H * 0.8 // (deep[1] + len(rows_colors)))
             w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
             screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
@@ -86,7 +86,7 @@ while running:
     if AUTO_RESOLUTION:
         crossword.find_answer()
 
-    if not DISPLAY:
+    if DISPLAY:
         events = pygame.event.get()
         crossword.draw()
         crossword.update(events)
