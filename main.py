@@ -36,6 +36,8 @@ if AUTO_RESOLUTION:
         options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-software-rasterizer")
 
     number = os.getpid()
     for handler in logging.root.handlers[:]:
