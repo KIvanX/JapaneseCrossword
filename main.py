@@ -1,10 +1,6 @@
 import logging
 import os
-import random
 import signal
-import subprocess
-import sys
-import threading
 import time
 import pygame
 from selenium import webdriver
