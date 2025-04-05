@@ -48,7 +48,7 @@ if AUTO_RESOLUTION:
     logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="w",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
 
-driver = webdriver.Chrome(options)
+driver = webdriver.Chrome()
 login(driver)
 
 W, H = 0, 0
