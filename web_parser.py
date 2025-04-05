@@ -13,26 +13,30 @@ from selenium.webdriver.common.by import By
 dotenv.load_dotenv()
 
 
-def login(driver):
-    driver.get(f'https://japonskie.ru/login')
-    driver.find_element(By.NAME, 'login').send_keys(os.environ['JAPONSKIE_LOGIN'])
-    driver.find_element(By.NAME, 'pass').send_keys(os.environ['JAPONSKIE_PASSWORD'])
-    driver.find_element(By.TAG_NAME, 'button').click()
-
-    time.sleep(1)
-    driver.get(f'https://japonskie.ru/')
-    time.sleep(3)
-
+def login(driver, _try=0):
     try:
-        driver.find_elements(By.TAG_NAME, 'svg')[-1].click()
-        driver.find_elements(By.TAG_NAME, 'svg')[-2].click()
-    except:
-        pass
-    finally:
+        driver.get(f'https://japonskie.ru/login')
+        driver.find_element(By.NAME, 'login').send_keys(os.environ['JAPONSKIE_LOGIN'])
+        driver.find_element(By.NAME, 'pass').send_keys(os.environ['JAPONSKIE_PASSWORD'])
+        driver.find_element(By.TAG_NAME, 'button').click()
+
         time.sleep(1)
+        driver.get(f'https://japonskie.ru/')
+        time.sleep(3)
+
+        try:
+            driver.find_elements(By.TAG_NAME, 'svg')[-1].click()
+            driver.find_elements(By.TAG_NAME, 'svg')[-2].click()
+        except:
+            pass
+        finally:
+            time.sleep(1)
+    except:
+        time.sleep(3)
+        return login(driver, _try+1) if _try < 3 else None
 
 
-def get_numbers(driver):
+def get_numbers(driver, _try=0):
     try:
         # login(driver)
         driver.get(f'https://japonskie.ru/')
@@ -55,7 +59,8 @@ def get_numbers(driver):
 
         return [random.choice(numbers)]
     except:
-        print('Get numbers error')
+        time.sleep(3)
+        return get_numbers(driver, _try=_try+1) if _try < 3 else []
 
 
 def _parse_color(element):
