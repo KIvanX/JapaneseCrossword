@@ -18,7 +18,9 @@ def login(driver, _try=0):
         driver.get(f'https://japonskie.ru/login')
         driver.find_element(By.NAME, 'login').send_keys(os.environ['JAPONSKIE_LOGIN'])
         driver.find_element(By.NAME, 'pass').send_keys(os.environ['JAPONSKIE_PASSWORD'])
-        driver.find_element(By.TAG_NAME, 'button').click()
+        button = driver.find_element(By.TAG_NAME, 'button')
+        if button.text == 'Вход':
+            button.click()
 
         time.sleep(1)
         driver.get(f'https://japonskie.ru/')
@@ -32,7 +34,7 @@ def login(driver, _try=0):
         finally:
             time.sleep(1)
     except:
-        time.sleep(3)
+        time.sleep(3 + 10 * _try)
         return login(driver, _try+1) if _try < 3 else None
 
 
@@ -41,7 +43,7 @@ def get_numbers(driver, _try=0):
         # login(driver)
         driver.get(f'https://japonskie.ru/')
 
-        for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
+        for tp, val in [('color', 1), ('size', 5), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
@@ -59,7 +61,7 @@ def get_numbers(driver, _try=0):
 
         return [random.choice(numbers)]
     except:
-        time.sleep(3)
+        time.sleep(3 + 10 * _try)
         return get_numbers(driver, _try=_try+1) if _try < 3 else []
 
 

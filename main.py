@@ -21,7 +21,7 @@ signal.signal(signal.SIGTERM, handle_exit_signal)
 
 
 AUTO_RESOLUTION = True
-DISPLAY = False
+DISPLAY = True
 num_i, nums, work = 0, [], True
 crossword, driver = None, None
 
