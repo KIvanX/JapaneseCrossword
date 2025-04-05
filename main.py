@@ -40,13 +40,11 @@ if AUTO_RESOLUTION:
     options.add_argument("--disable-software-rasterizer")
 
     number = os.getpid()
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-
+    logging.root.handlers.clear()
     with open('logs.log', "a") as f:
         f.write('@' * 50 + f' The process {number} is running... ' + '@' * 50 + '\n\n')
 
-    logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="w",
+    logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="a",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
 
 driver = webdriver.Chrome(options)
