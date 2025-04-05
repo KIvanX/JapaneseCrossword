@@ -31,9 +31,8 @@ crossword, driver = None, None
 
 options = Options()
 if AUTO_RESOLUTION:
-    options.add_argument("--start-maximized")
-    if not DISPLAY:
-        options.add_argument("--headless")
+    # options.add_argument("--start-maximized")
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
