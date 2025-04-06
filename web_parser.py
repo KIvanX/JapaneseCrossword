@@ -123,8 +123,8 @@ def get_puzzle(driver, k):
 
         deep = (len(max(rows, key=len)), len(max(cols, key=len)))
         return rows, cols, rows_colors, cols_colors, colors, deep
-    except:
-        print('Get puzzle error')
+    except Exception as e:
+        logging.error('Get puzzle error:' + str(e))
 
 
 def paste_puzzle(driver, k, a):
