@@ -44,19 +44,13 @@ if DISPLAY:
 running = True
 while running:
     if not crossword or AUTO_RESOLUTION and crossword.finished:
-        if num_i >= len(nums):
+        k = 0
+        while num_i >= len(nums) and k < 30:
             nums += get_numbers(driver)
-        while True:
-            try:
-                rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
-                num_i += 1
-                break
-            except:
-                print(f'Load error: {nums[num_i]}')
-                time.sleep(3)
-                num_i += 1
-                if num_i >= len(nums):
-                    nums += get_numbers(driver)
+            k += 1
+
+        rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
+        num_i += 1
 
         screen, a = None, None
         if DISPLAY:
