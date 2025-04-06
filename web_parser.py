@@ -7,6 +7,8 @@ import dotenv
 from bs4 import BeautifulSoup
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 dotenv.load_dotenv()
 
@@ -36,10 +38,15 @@ def login(driver, _try=0):
         return login(driver, _try+1) if _try < 3 else None
 
 
-def get_numbers(driver, n=1, _try=0):
+def get_numbers(driver, options, _try=0):
     try:
         # login(driver)
+        # try:
         driver.get(f'https://japonskie.ru/')
+        # except:
+        #     driver = webdriver.Chrome(options)
+        #     login(driver)
+        #     driver.get(f'https://japonskie.ru/')
 
         for tp, val in [('color', 1), ('size', 6), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
@@ -57,11 +64,11 @@ def get_numbers(driver, n=1, _try=0):
             if a.text.split('#')[-1].strip().isdigit():
                 numbers.append(int(a.text.strip().split('#')[-1]))
 
-        return random.choices(numbers, k=min(n, len(numbers)))
+        return [random.choice(numbers)]
     except Exception as e:
         logging.error('Get numbers error:' + str(e))
         time.sleep(3 + 10 * _try)
-        return get_numbers(driver, _try=_try+1) if _try < 3 else 0
+        return get_numbers(driver, options, _try=_try+1) if _try < 3 else 0
 
 
 def _parse_color(element):

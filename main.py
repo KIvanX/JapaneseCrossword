@@ -5,6 +5,8 @@ import time
 import pygame
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 from crossword import Crossword
 from web_parser import get_puzzle, get_numbers, login
@@ -43,7 +45,7 @@ if AUTO_RESOLUTION:
     logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="a",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
 
-driver = webdriver.Chrome(options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 login(driver)
 
 W, H = 0, 0
@@ -55,8 +57,8 @@ if DISPLAY:
 running = True
 while running:
     if not crossword or AUTO_RESOLUTION and crossword.finished:
-        while num_i >= len(nums):
-            nums += get_numbers(driver, n=num_i - len(nums) + 1)
+        if num_i >= len(nums):
+            nums += get_numbers(driver, options)
         while True:
             try:
                 rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
@@ -67,7 +69,7 @@ while running:
                 time.sleep(3)
                 num_i += 1
                 if num_i >= len(nums):
-                    nums += get_numbers(driver, n=num_i - len(nums) + 1)
+                    nums += get_numbers(driver, options)
 
         screen, a = None, None
         if DISPLAY:
