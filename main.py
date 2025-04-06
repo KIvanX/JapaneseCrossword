@@ -1,27 +1,16 @@
 import logging
 import os
 import signal
-import time
 import pygame
 
 from crossword import Crossword
-from web_parser import get_puzzle, get_numbers, login, init_driver
-
-
-def handle_exit_signal(_, __):
-    if driver:
-        driver.quit()
-    exit(0)
-
-
-signal.signal(signal.SIGINT, handle_exit_signal)
-signal.signal(signal.SIGTERM, handle_exit_signal)
+from web_parser import get_puzzle, get_numbers
 
 
 AUTO_RESOLUTION = True
 DISPLAY = False
 num_i, nums, work = 0, [], True
-crossword, driver = None, None
+crossword = None
 
 if AUTO_RESOLUTION:
     number = os.getpid()
@@ -32,8 +21,6 @@ if AUTO_RESOLUTION:
     logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="a",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
 
-driver = init_driver(not DISPLAY)
-login(driver)
 
 W, H = 0, 0
 if DISPLAY:
@@ -46,10 +33,10 @@ while running:
     if not crossword or AUTO_RESOLUTION and crossword.finished:
         k = 0
         while num_i >= len(nums) and k < 30:
-            nums += get_numbers(driver)
+            nums += get_numbers()
             k += 1
 
-        rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
+        rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(nums[num_i])
         num_i += 1
 
         screen, a = None, None
@@ -58,7 +45,7 @@ while running:
             w, h = a * (deep[0] + len(cols_colors)), a * (deep[1] + len(rows_colors))
             screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
         crossword = Crossword(screen, cols, rows, cols_colors, rows_colors, colors, a, deep, nums[num_i - 1],
-                              auto=AUTO_RESOLUTION, driver=driver)
+                              auto=AUTO_RESOLUTION)
 
     if AUTO_RESOLUTION:
         crossword.find_answer()
