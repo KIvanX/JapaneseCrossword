@@ -5,9 +5,7 @@ import time
 
 import dotenv
 from bs4 import BeautifulSoup
-from selenium import webdriver
 from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 dotenv.load_dotenv()
@@ -43,7 +41,7 @@ def get_numbers(driver, _try=0):
         # login(driver)
         driver.get(f'https://japonskie.ru/')
 
-        for tp, val in [('color', 1), ('size', 5), ('filtr', 0)]:
+        for tp, val in [('color', 1), ('size', 6), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)

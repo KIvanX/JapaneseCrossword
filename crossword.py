@@ -155,7 +155,7 @@ class Crossword:
                 self.dump_exclude = [[e.copy() for e in line] for line in self.a_exclude]
 
             x, y = random.choice([(x, y) for x in range(self.n) for y in range(self.m) if self.a[x][y] == 0])
-            self.a[x][y] = next((i + 1 for i in range(len(self.colors)) if self.a_exclude[x][y][i]))
+            self.a[x][y] = next((i + 1 for i in range(len(self.colors)) if self.a_exclude[x][y][i]), -1)
             # self.dump_v = (x, y, self.a[y][x] - 1)
 
 
