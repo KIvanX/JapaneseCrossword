@@ -36,7 +36,7 @@ def login(driver, _try=0):
         return login(driver, _try+1) if _try < 3 else None
 
 
-def get_numbers(driver, _try=0):
+def get_numbers(driver, n=1, _try=0):
     try:
         # login(driver)
         driver.get(f'https://japonskie.ru/')
@@ -57,7 +57,7 @@ def get_numbers(driver, _try=0):
             if a.text.split('#')[-1].strip().isdigit():
                 numbers.append(int(a.text.strip().split('#')[-1]))
 
-        return [random.choice(numbers)]
+        return random.choices(numbers, k=min(n, len(numbers)))
     except Exception as e:
         logging.error('Get numbers error:' + str(e))
         time.sleep(3 + 10 * _try)
