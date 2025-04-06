@@ -58,7 +58,8 @@ def get_numbers(driver, _try=0):
                 numbers.append(int(a.text.strip().split('#')[-1]))
 
         return [random.choice(numbers)]
-    except:
+    except Exception as e:
+        logging.error('Get numbers error:' + str(e))
         time.sleep(3 + 10 * _try)
         return get_numbers(driver, _try=_try+1) if _try < 3 else []
 
