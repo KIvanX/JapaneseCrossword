@@ -61,7 +61,7 @@ def get_numbers(driver, n=1, _try=0):
     except Exception as e:
         logging.error('Get numbers error:' + str(e))
         time.sleep(3 + 10 * _try)
-        return get_numbers(driver, _try=_try+1) if _try < 3 else []
+        return get_numbers(driver, _try=_try+1) if _try < 3 else 0
 
 
 def _parse_color(element):
