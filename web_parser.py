@@ -19,27 +19,10 @@ dotenv.load_dotenv()
 def init_driver(on_vps=True):
     options = webdriver.ChromeOptions()
     if on_vps:
-        # Базовые настройки для VPS
         options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")  # Критически важно
+        options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-software-rasterizer")
-
-        # Режим электропитания и GPU
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-backgrounding-occluded-windows")
-        options.add_argument("--disable-renderer-backgrounding")
-
-        # Фикс для падений вкладок
-        options.add_argument("--force-fieldtrials=SiteIsolationExtensions/Control")
-        options.add_argument("--site-per-process")
-
-        # Headless-режим с рендерингом
-        options.add_argument("--headless=new")
-        options.add_argument("--hide-scrollbars")
-
-        # Ограничение памяти
-        options.add_argument("--single-process")  # Для слабых VPS
-        options.add_argument("--max_old_space_size=1024")  # Ограничение памяти для JS
+        options.add_argument("--headless")
 
     options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
