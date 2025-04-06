@@ -6,11 +6,38 @@ import time
 import dotenv
 from bs4 import BeautifulSoup
 from selenium.webdriver import ActionChains
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import socket
 
 dotenv.load_dotenv()
+
+
+def init_driver(on_vps=True):
+    options = webdriver.ChromeOptions()
+    if on_vps:
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+
+        s = socket.socket()
+        s.bind(('', 0))
+        port = s.getsockname()[1]
+
+        options.add_argument(f"--remote-debugging-port={port}")
+        options.add_argument(f"--user-data-dir=/tmp/chrome_profile_{port}")
+
+    options.add_argument("--start-maximized")
+    options.add_argument("--window-size=1920,1080")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.set_page_load_timeout(60)
+    driver.implicitly_wait(10)
+
+    return driver
 
 
 def login(driver, _try=0):
@@ -38,15 +65,15 @@ def login(driver, _try=0):
         return login(driver, _try+1) if _try < 3 else None
 
 
-def get_numbers(driver, options, _try=0):
+def get_numbers(driver, _try=0):
     try:
         # login(driver)
-        # try:
-        driver.get(f'https://japonskie.ru/')
-        # except:
-        #     driver = webdriver.Chrome(options)
-        #     login(driver)
-        #     driver.get(f'https://japonskie.ru/')
+        try:
+            driver.get(f'https://japonskie.ru/')
+        except:
+            driver = init_driver()
+            login(driver)
+            driver.get(f'https://japonskie.ru/')
 
         for tp, val in [('color', 1), ('size', 6), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
@@ -68,7 +95,7 @@ def get_numbers(driver, options, _try=0):
     except Exception as e:
         logging.error('Get numbers error:' + str(e))
         time.sleep(3 + 10 * _try)
-        return get_numbers(driver, options, _try=_try+1) if _try < 3 else 0
+        return get_numbers(driver, _try=_try+1) if _try < 3 else 0
 
 
 def _parse_color(element):

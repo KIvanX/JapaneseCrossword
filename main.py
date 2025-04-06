@@ -3,13 +3,9 @@ import os
 import signal
 import time
 import pygame
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
 from crossword import Crossword
-from web_parser import get_puzzle, get_numbers, login
+from web_parser import get_puzzle, get_numbers, login, init_driver
 
 
 def handle_exit_signal(_, __):
@@ -23,20 +19,11 @@ signal.signal(signal.SIGTERM, handle_exit_signal)
 
 
 AUTO_RESOLUTION = True
-DISPLAY = False
+DISPLAY = True
 num_i, nums, work = 0, [], True
 crossword, driver = None, None
 
-options = Options()
 if AUTO_RESOLUTION:
-    options.add_argument("--start-maximized")
-    if not DISPLAY:
-        options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-software-rasterizer")
-
     number = os.getpid()
     logging.root.handlers.clear()
     with open('logs.log', "a") as f:
@@ -45,7 +32,7 @@ if AUTO_RESOLUTION:
     logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="a",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver = init_driver(not DISPLAY)
 login(driver)
 
 W, H = 0, 0
@@ -58,7 +45,7 @@ running = True
 while running:
     if not crossword or AUTO_RESOLUTION and crossword.finished:
         if num_i >= len(nums):
-            nums += get_numbers(driver, options)
+            nums += get_numbers(driver)
         while True:
             try:
                 rows, cols, rows_colors, cols_colors, colors, deep = get_puzzle(driver, nums[num_i])
@@ -69,7 +56,7 @@ while running:
                 time.sleep(3)
                 num_i += 1
                 if num_i >= len(nums):
-                    nums += get_numbers(driver, options)
+                    nums += get_numbers(driver)
 
         screen, a = None, None
         if DISPLAY:
