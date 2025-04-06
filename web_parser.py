@@ -9,9 +9,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-import socket
 
 dotenv.load_dotenv()
 
@@ -30,6 +28,16 @@ def init_driver(on_vps=True):
     driver.implicitly_wait(10)
 
     return driver
+
+
+def save_open(driver, url, _try=0):
+    try:
+        driver.get(url)
+    except:
+        time.sleep(3)
+        driver = init_driver()
+        login(driver)
+        return save_open(driver, url, _try + 1) if _try < 10 else None
 
 
 def login(driver, _try=0):
@@ -60,13 +68,8 @@ def login(driver, _try=0):
 def get_numbers(driver, _try=0):
     try:
         # login(driver)
-        try:
-            driver.get(f'https://japonskie.ru/')
-        except:
-            driver = init_driver()
-            login(driver)
-            driver.get(f'https://japonskie.ru/')
 
+        save_open(driver, f'https://japonskie.ru/')
         for tp, val in [('color', 1), ('size', 6), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
@@ -108,12 +111,7 @@ def get_puzzle(driver, k):
                 response = f.read()
         else:
             # driver = webdriver.Chrome(options=chrome_options)
-            try:
-                driver.get(f'https://japonskie.ru/{k}')
-            except:
-                driver = init_driver()
-                login(driver)
-                driver.get(f'https://japonskie.ru/{k}')
+            save_open(driver, f'https://japonskie.ru/{k}')
 
             response = driver.page_source
             if os.path.exists(f'static/japonskie/'):
@@ -164,7 +162,8 @@ def get_puzzle(driver, k):
 def paste_puzzle(driver, k, a):
     try:
         # login(driver)
-        driver.get(f'https://japonskie.ru/{k}')
+
+        save_open(driver, f'https://japonskie.ru/{k}')
 
         action = ActionChains(driver, duration=1)
         table = driver.find_element(By.ID, 'cross_main')
