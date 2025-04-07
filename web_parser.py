@@ -41,27 +41,18 @@ def login(driver, _try=0):
 
         time.sleep(1)
         driver.get(f'https://japonskie.ru/')
-        time.sleep(3)
-
-        try:
-            driver.find_elements(By.TAG_NAME, 'svg')[-1].click()
-            driver.find_elements(By.TAG_NAME, 'svg')[-2].click()
-        except:
-            pass
-        finally:
-            time.sleep(1)
+        time.sleep(1)
+        driver.refresh()
     except:
-        time.sleep(3 + 10 * _try)
+        time.sleep(3 + _try)
         return login(driver, _try+1) if _try < 3 else None
 
 
-def get_numbers():
+def get_numbers(driver):
     try:
-        driver = init_driver()
-        login(driver)
         driver.get('https://japonskie.ru/')
 
-        for tp, val in [('color', 2), ('size', 6), ('filtr', 0)]:
+        for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
@@ -77,7 +68,6 @@ def get_numbers():
             if a.text.split('#')[-1].strip().isdigit():
                 numbers.append(int(a.text.strip().split('#')[-1]))
 
-        driver.quit()
         return [random.choice(numbers)]
     except Exception as e:
         logging.error('Get numbers error:' + str(e))
@@ -94,11 +84,13 @@ def _parse_color(element):
     return res
 
 
-def get_puzzle(k):
+def get_puzzle(driver, k):
     try:
-        driver = init_driver()
-        login(driver)
-        driver.get(f'https://japonskie.ru/{k}')
+        try:
+            driver.get(f'https://japonskie.ru/{k}')
+        except:
+            driver = init_driver()
+            driver.get(f'https://japonskie.ru/{k}')
 
         if os.path.exists(f'static/japonskie/puzzle_{k}.html'):
             with open(f'static/japonskie/puzzle_{k}.html', 'r') as f:
@@ -108,7 +100,6 @@ def get_puzzle(k):
             if os.path.exists(f'static/japonskie/'):
                 with open(f'static/japonskie/puzzle_{k}.html', 'w') as f:
                     f.write(response)
-            driver.quit()
 
         soup = BeautifulSoup(response, 'lxml')
         puzzle = soup.find('table', id='full_cross_tbl')
@@ -143,18 +134,20 @@ def get_puzzle(k):
                 else:
                     rows_colors[i // deep].append(1)
 
-        driver.quit()
         deep = (len(max(rows, key=len)), len(max(cols, key=len)))
         return rows, cols, rows_colors, cols_colors, colors, deep
     except Exception as e:
         logging.error('Get puzzle error:' + str(e))
 
 
-def paste_puzzle(k, a):
+def paste_puzzle(driver, k, a):
     try:
-        driver = init_driver()
-        login(driver)
-        driver.get(f'https://japonskie.ru/{k}')
+        try:
+            driver.get(f'https://japonskie.ru/{k}')
+        except:
+            driver = init_driver()
+            login(driver)
+            driver.get(f'https://japonskie.ru/{k}')
 
         action = ActionChains(driver, duration=1)
         table = driver.find_element(By.ID, 'cross_main')
@@ -183,6 +176,5 @@ def paste_puzzle(k, a):
 
         time.sleep(5)
         logging.warning('DONE')
-        driver.close()
     except:
         print(f'Paste error: {k}')
