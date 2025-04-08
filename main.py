@@ -74,7 +74,7 @@ while running:
                     crossword.find_answer()
     except Exception as e:
         try:
-            driver.close()
+            driver.quit()
         finally:
             driver = None
         logging.error('Main loop error: ' + str(e))
