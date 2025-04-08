@@ -16,11 +16,9 @@ crossword, driver = None, None
 if AUTO_RESOLUTION:
     number = os.getpid()
     logging.root.handlers.clear()
-    with open('logs.log', "a") as f:
-        f.write('@' * 50 + f' The process {number} is running... ' + '@' * 50 + '\n\n')
-
     logging.basicConfig(level=logging.WARNING, filename='logs.log', filemode="a",
                         format=f"[{number}] %(asctime)s %(levelname)s %(message)s\n" + '\n' * 3)
+    logging.warning('Start')
 
 
 W, H = 0, 0

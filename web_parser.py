@@ -59,8 +59,6 @@ def get_numbers(driver):
             sel.find_elements(By.TAG_NAME, 'option')[val].click()
             time.sleep(1)
 
-        raise 'error'
-
         driver.find_element(By.ID, 'findbutdiv').click()
         time.sleep(1)
         table = driver.find_element(by=By.ID, value='catitems')
