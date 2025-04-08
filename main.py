@@ -77,7 +77,7 @@ while running:
     except Exception as e:
         try:
             driver.close()
-        except:
-            pass
+        finally:
+            driver = None
         logging.error('Main loop error: ' + str(e))
         time.sleep(3)

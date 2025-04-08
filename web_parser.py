@@ -52,12 +52,14 @@ def get_numbers(driver):
     try:
         driver.get('https://japonskie.ru/')
 
-        for tp, val in [('color', 2), ('size', 5), ('filtr', 0)]:
+        for tp, val in [('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
             sel.find_elements(By.TAG_NAME, 'option')[val].click()
             time.sleep(1)
+
+        raise 'error'
 
         driver.find_element(By.ID, 'findbutdiv').click()
         time.sleep(1)
