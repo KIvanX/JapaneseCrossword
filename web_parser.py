@@ -22,6 +22,7 @@ def init_driver(on_vps=True):
         options.add_argument("--disable-software-rasterizer")
         options.add_argument("--headless")
 
+    options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_page_load_timeout(60)
@@ -59,7 +60,7 @@ def get_numbers(driver):
             sel.find_elements(By.TAG_NAME, 'option')[val].click()
             time.sleep(1)
 
-        driver.find_element(By.ID, 'findbutdiv').click()
+        driver.find_element(By.ID, 'findbutdiv').find_element(By.TAG_NAME, 'img').click()
         time.sleep(1)
         table = driver.find_element(by=By.ID, value='catitems')
 
