@@ -52,8 +52,7 @@ def get_numbers(driver):
     try:
         driver.get('https://japonskie.ru/')
 
-        color, size = random.choice([(1, 3), (1, 4), (2, 3), (2, 4), (2, 6)])
-        for tp, val in [('color', color), ('size', size), ('filtr', 0)]:
+        for tp, val in [('size', 0), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
@@ -150,7 +149,7 @@ def paste_puzzle(driver, k, a):
             login(driver)
             driver.get(f'https://japonskie.ru/{k}')
 
-        action = ActionChains(driver, duration=1)
+        action = ActionChains(driver, duration=10)
         table = driver.find_element(By.ID, 'cross_main')
         button_colors = driver.find_element(By.ID, value='maincolors').find_elements(By.CLASS_NAME, 'color_button')
         for i_b in range(len(button_colors) - 1):
