@@ -22,6 +22,7 @@ def init_driver(on_vps=True):
         options.add_argument("--disable-software-rasterizer")
         options.add_argument("--headless")
 
+    options.page_load_strategy = 'eager'
     options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -44,8 +45,9 @@ def login(driver, _try=0):
         driver.get(f'https://japonskie.ru/')
         time.sleep(1)
         driver.refresh()
+        time.sleep(1)
     except:
-        time.sleep(3 + _try)
+        time.sleep(3)
         return login(driver, _try+1) if _try < 3 else None
 
 
@@ -53,7 +55,7 @@ def get_numbers(driver):
     try:
         driver.get('https://japonskie.ru/')
 
-        for tp, val in [('size', 4), ('filtr', 0)]:
+        for tp, val in [('size', 0), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
@@ -150,7 +152,8 @@ def paste_puzzle(driver, k, a):
             login(driver)
             driver.get(f'https://japonskie.ru/{k}')
 
-        action = ActionChains(driver, duration=1)
+        action = ActionChains(driver)
+        action.w3c_actions.pointer_action._duration = 0
         table = driver.find_element(By.ID, 'cross_main')
         button_colors = driver.find_element(By.ID, value='maincolors').find_elements(By.CLASS_NAME, 'color_button')
         for i_b in range(len(button_colors) - 1):
@@ -160,7 +163,7 @@ def paste_puzzle(driver, k, a):
                     break
 
                 if len(a) < 30 or len(a) >= 30 and i > 8:
-                    driver.execute_script("window.scrollBy(0, 15)")
+                    driver.execute_script("window.scrollBy(0, 14)")
 
                 line = row.find_elements(By.TAG_NAME, 'td')
                 pressed = False
@@ -175,7 +178,7 @@ def paste_puzzle(driver, k, a):
 
                 action.perform()
 
-        time.sleep(5)
+        time.sleep(8)
         logging.warning('DONE')
     except:
         print(f'Paste error: {k}')
