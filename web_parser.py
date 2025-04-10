@@ -53,7 +53,7 @@ def get_numbers(driver):
     try:
         driver.get('https://japonskie.ru/')
 
-        for tp, val in [('size', 6), ('filtr', 0)]:
+        for tp, val in [('size', 4), ('filtr', 0)]:
             sel = driver.find_element(By.ID, tp)
             sel.click()
             time.sleep(1)
